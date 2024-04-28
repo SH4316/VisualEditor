@@ -1,2 +1,2 @@
 # Visual Editor
-This repository is made for studying React, css, and JS.
+This repository is created for studying React, css, and JS.
