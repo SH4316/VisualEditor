@@ -1,5 +1,7 @@
-import { createRef, useEffect, useRef, useState } from "react";
+import React, { createRef, useEffect, useState } from "react";
 import { Shape, Location, Rectangle } from "./Shapes";
+
+let dragStartLoc: Location = {px: 0, py: 0}
 
 export default function Canvas({shapes}: {shapes: Shape[]}) {
     const canvasRef = createRef<HTMLCanvasElement>();
@@ -7,6 +9,8 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
     const [expansion, setExpansion] = useState<number>(1);
 
     const [selected, setSelected] = useState<number>(-1);
+    const [mouseDown, setMouseDown] = useState(false);
+    // const [dragStartLoc, setDragStartLoc] = useState<Location>({px: 0, py: 0})
 
     useEffect(() => {
         setSelected(-1);
@@ -31,9 +35,9 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
         }
     }, [canvasRef, location, shapes, selected, expansion]);
 
-    const onClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        const x = e.clientX - e.currentTarget.offsetLeft
-        const y = e.clientY - e.currentTarget.offsetTop
+    const selector = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const x = e.clientX - e.currentTarget.offsetLeft;
+        const y = e.clientY - e.currentTarget.offsetTop;
 
         let find = false;
         for (let i = 0; i < shapes.length; i++) {
@@ -48,9 +52,49 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
             setSelected(-1);
         }
     };
+    const relocator = (x, y) => {
+        // if (!mouseDown)
+        //     return;
+        // const x = e.clientX - e.currentTarget.offsetLeft;
+        // const y = e.clientY - e.currentTarget.offsetTop;
+        setLocation({px: location.px + dragStartLoc.px - x, py: location.py + dragStartLoc.py - y})
+    }
+    const relocator2 = (e: HTMLCanvasElement) => {
+        const x = e.offsetLeft
+        const y = e.offsetTop
+        setLocation({px: location.px + dragStartLoc.px - x, py: location.py + dragStartLoc.py - y})
+    }
+    const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (mouseDown) return;
+        setMouseDown(true);
+        dragStartLoc.px = e.clientX - e.currentTarget.offsetLeft
+        dragStartLoc.py = e.clientY - e.currentTarget.offsetTop
+
+        // const x = e.clientX - e.currentTarget.offsetLeft;
+        // const y = e.clientY - e.currentTarget.offsetTop;
+        // canvasRef.current?.addEventListener('mousemove', () => {
+        //     console.log("move");
+        //     relocator(x, y);
+        // })
+    }
+    const onMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!mouseDown) return;
+        setMouseDown(false);
+
+        const x = e.clientX - e.currentTarget.offsetLeft;
+        const y = e.clientY - e.currentTarget.offsetTop;
+        if (mouseDown) {
+            if (dragStartLoc.px === x || dragStartLoc.py === y) {
+                selector(e);
+            }
+        }
+
+        relocator(x, y);
+        // canvasRef.current?.removeEventListener('mousemove', );
+    }
 
     return <>
-        <canvas ref={canvasRef} width={400} height={400} onClick={onClick}>
+        <canvas ref={canvasRef} width={400} height={400} onMouseDown={onMouseDown} onMouseUp={onMouseUp}>
         </canvas>
         <button onClick={() => {
             setExpansion(expansion + 0.1);
