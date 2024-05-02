@@ -1,14 +1,13 @@
 import React, { createRef, useEffect, useState } from "react";
-import { Shape, Location, Rectangle } from "./Shapes";
+import { Shape, Location, Rectangle } from "../Shapes";
 
 let dragStartLoc: Location = {px: 0, py: 0}
 
-export default function Canvas({shapes}: {shapes: Shape[]}) {
+export default function Canvas({shapes, selected, setSelected, height, width}: {shapes: Shape[], selected: number, setSelected: React.Dispatch<React.SetStateAction<number>>, height: number, width: number}) {
     const canvasRef = createRef<HTMLCanvasElement>();
     const [location, setLocation] = useState<Location>({px: 0, py: 0});
     const [expansion, setExpansion] = useState<number>(1);
 
-    const [selected, setSelected] = useState<number>(-1);
     const [mouseDown, setMouseDown] = useState(false);
     // const [dragStartLoc, setDragStartLoc] = useState<Location>({px: 0, py: 0})
 
@@ -20,7 +19,7 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
         const ctx = canvasRef.current?.getContext('2d');
         if (!ctx) return;
 
-        ctx?.clearRect(0, 0, 400, 400);
+        ctx?.clearRect(0, 0, height, width);
 
         shapes.forEach((value, index, arr) => {
             // if (value.type === "rectangle") {
@@ -33,7 +32,7 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
             const shape = shapes[selected];
             Drawer["selected"](ctx, shape, location, expansion);
         }
-    }, [canvasRef, location, shapes, selected, expansion]);
+    }, [canvasRef, location, shapes, selected, expansion, height, width]);
 
     const selector = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const x = e.clientX - e.currentTarget.offsetLeft;
@@ -57,12 +56,13 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
         //     return;
         // const x = e.clientX - e.currentTarget.offsetLeft;
         // const y = e.clientY - e.currentTarget.offsetTop;
-        setLocation({px: location.px + dragStartLoc.px - x, py: location.py + dragStartLoc.py - y})
+        setLocation({px: location.px + (dragStartLoc.px - x) / expansion, py: location.py + (dragStartLoc.py - y) / expansion})
+        // setSelected(-1);
     }
     const relocator2 = (e: HTMLCanvasElement) => {
         const x = e.offsetLeft
         const y = e.offsetTop
-        setLocation({px: location.px + dragStartLoc.px - x, py: location.py + dragStartLoc.py - y})
+        setLocation({px: location.px + (dragStartLoc.px - x) / expansion, py: location.py + (dragStartLoc.py - y) / expansion})
     }
     const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (mouseDown) return;
@@ -86,6 +86,7 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
         if (mouseDown) {
             if (dragStartLoc.px === x || dragStartLoc.py === y) {
                 selector(e);
+                return;
             }
         }
 
@@ -94,7 +95,7 @@ export default function Canvas({shapes}: {shapes: Shape[]}) {
     }
 
     return <>
-        <canvas ref={canvasRef} width={400} height={400} onMouseDown={onMouseDown} onMouseUp={onMouseUp}>
+        <canvas id={"main-canvas"} ref={canvasRef} width={width} height={height} onMouseDown={onMouseDown} onMouseUp={onMouseUp}>
         </canvas>
         <button onClick={() => {
             setExpansion(expansion + 0.1);
@@ -121,7 +122,15 @@ const Drawer: {[key: string]: (ctx: CanvasRenderingContext2D, shape: Shape, loca
     "selected" : (ctx: CanvasRenderingContext2D, shape: Shape, location: Location, expansion: number) => {
         ctx.strokeStyle = "red";
         ctx.lineWidth = 2;
-        ctx.strokeRect(shape.loc.px - location.px - 1, shape.loc.py - location.py - 1, shape.size.width + 2, shape.size.height + 2);
+        // ctx.strokeRect(shape.loc.px - location.px - 1, shape.loc.py - location.py - 1, shape.size.width + 2, shape.size.height + 2);
+        ctx.strokeRect((shape.loc.px - location.px - 1) * expansion, (shape.loc.py - location.py - 1) * expansion, (shape.size.width + 2) * expansion, (shape.size.height + 2) * expansion);
+
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "white"
+        ctx.fillRect((shape.loc.px - location.px - 3) * expansion, (shape.loc.py - location.py - 3) * expansion, 5, 5);
+        ctx.fillRect((shape.loc.px - location.px + shape.size.width - 1) * expansion, (shape.loc.py - location.py - 3) * expansion, 5, 5);
+        ctx.fillRect((shape.loc.px - location.px + shape.size.width - 1) * expansion, (shape.loc.py - location.py + shape.size.height - 1) * expansion, 5, 5);
+        ctx.fillRect((shape.loc.px - location.px - 3) * expansion, (shape.loc.py - location.py + shape.size.height - 1) * expansion, 5, 5);
     },
     "rectangle": (ctx: CanvasRenderingContext2D, shape: Shape, location: Location, expansion: number) => {
         if (shape.color) {

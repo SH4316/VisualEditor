@@ -12,6 +12,7 @@ export type Border = {
 }
 export interface Shape {
     type: string;
+    name: string;
     loc: Location;
     size: ShapeSize;
     border: Border | null;
