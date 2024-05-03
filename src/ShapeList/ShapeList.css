@@ -1,9 +1,9 @@
 aside.wrapper {
-    position: absolute;
-    top: 48px;
-    left: 0;
+    position: static;
+    /* top: 48px;
+    left: 0; */
 
-    height: calc(100% - 48px);
+    height: calc(100vh - 48px);
     min-width: 240px;
 
     background-color: #2c2c2c;

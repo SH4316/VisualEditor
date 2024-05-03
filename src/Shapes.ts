@@ -13,6 +13,7 @@ export type Border = {
 export interface Shape {
     type: string;
     name: string;
+    key: number;
     loc: Location;
     size: ShapeSize;
     border: Border | null;
@@ -22,3 +23,8 @@ export interface Rectangle extends Shape{
     type: "rectangle";
 }
 
+let base = 0;
+export function shapeKeyGenerator() {
+    ++base;
+    return base;
+}

@@ -6,6 +6,18 @@
 } */
 
 canvas {
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
+
+  flex: none;
+  flex-shrink: unset;
+  flex-grow: unset;
 }
 
+main {
+  position: absolute;
+  top: 48px;
+  left: 0;
+
+  display: flex;
+  /* align-items: normal; */
+}
