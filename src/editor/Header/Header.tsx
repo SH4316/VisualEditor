@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { Shape } from "../Shapes";
+// import React, { useState } from "react";
+// import { useRecoilState, useRecoilValue } from "recoil";
+// import { headerSelectionState, shapesState } from "../atom/atom";
+
+import { useRecoilState } from "recoil";
+import { headerSelectionState, shapesState } from "../atom/atom";
+import { useState } from "react";
+
 import "./Header.css"
 
 const menuList: {[key: string]: {elements: JSX.Element, func: (e: React.MouseEvent<HTMLElement>) => void}} = {
@@ -41,8 +47,11 @@ const menuList: {[key: string]: {elements: JSX.Element, func: (e: React.MouseEve
     }
 }
 
-export default function Header({shapes}: {shapes: Shape[]}) {
-    const [selectedMenu, setSelectedMenu] = useState<number>(1);
+export default function Header() {
+    // const [shapes, setShapes] = useRecoilState(shapesState);
+    // const [headerSelection, setHeaderSelection] = useState(1);
+    const [selectedMenu, setSelectedMenu] = useRecoilState(headerSelectionState);
+    // const headerHeight = useRecoilValueLoadable();
 
     return <>
         <header>

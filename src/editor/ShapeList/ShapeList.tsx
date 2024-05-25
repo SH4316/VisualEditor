@@ -1,9 +1,13 @@
-import { Location, Shape } from "../Shapes";
+import { useRecoilState } from "recoil";
+import { Shape } from "../Shapes";
+import { shapesState } from "../atom/atom";
 import "./ShapeList.css"
 import React, { useEffect, useState } from "react";
 
-export default function ShapeList({shapes, selected, setSelected}: {shapes: Shape[], selected: number, setSelected: React.Dispatch<React.SetStateAction<number>>}) {
+export default function ShapeList({selected, setSelected}: {selected: number, setSelected: React.Dispatch<React.SetStateAction<number>>}) {
+    const [shapes] = useRecoilState(shapesState);
     const [width, setWidth] = useState<number>(240);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [resizing, setResizing] = useState<boolean>(false);
 
     useEffect(() => {
